@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     firebase_project_id: str
     firebase_service_account_path: str | None = None
     allow_dev_auth_bypass: bool = True
+    require_db_on_startup: bool = False
     cors_origins: str = "http://localhost:3000"
     upload_dir: str = "uploads"
     static_base_url: str = "http://localhost:8000"

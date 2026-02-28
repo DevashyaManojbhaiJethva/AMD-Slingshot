@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -11,6 +12,9 @@ from app.db import ping_database
 from app.routers.analyze import router as analyze_router
 from app.routers.history import router as history_router
 from app.services.firebase_service import initialize_firebase
+
+
+logger = logging.getLogger(__name__)
 
 
 app = FastAPI(title=settings.app_name)
@@ -34,7 +38,12 @@ app.include_router(history_router)
 @app.on_event("startup")
 async def on_startup() -> None:
     initialize_firebase()
-    await ping_database()
+    try:
+        await ping_database()
+    except Exception:
+        logger.exception("Database ping failed during startup")
+        if settings.require_db_on_startup:
+            raise
 
 
 @app.get("/health")
