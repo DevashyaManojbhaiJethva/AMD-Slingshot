@@ -454,7 +454,7 @@ export const SoilUpload = () => {
         return;
       }
 
-      if (axios.isAxiosError(err) && !err.response) {
+      if (import.meta.env.DEV && axios.isAxiosError(err) && !err.response) {
         const fallbackResult = buildLocalFallbackResult({
           depthNumber,
           fileCount: files.length,
