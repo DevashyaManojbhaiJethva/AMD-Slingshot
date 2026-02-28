@@ -1,0 +1,33 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8F7E9"/>
+      <stop offset="1" stop-color="#CDEBCF"/>
+    </linearGradient>
+    <linearGradient id="hill1" x1="0" y1="430" x2="1200" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9FD89E"/>
+      <stop offset="1" stop-color="#6FC26C"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="520" x2="1200" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7FBE7B"/>
+      <stop offset="1" stop-color="#4FAE58"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <circle cx="950" cy="120" r="68" fill="#F6E18D"/>
+  <path d="M0 470C180 390 340 390 540 460C740 530 970 560 1200 470V720H0V470Z" fill="url(#hill1)"/>
+  <path d="M0 560C230 500 430 520 650 580C860 640 1040 640 1200 600V720H0V560Z" fill="url(#hill2)"/>
+  <rect x="150" y="260" width="290" height="180" rx="16" fill="white" fill-opacity="0.85"/>
+  <rect x="190" y="292" width="210" height="16" rx="8" fill="#3A8E43" fill-opacity="0.25"/>
+  <rect x="190" y="324" width="170" height="12" rx="6" fill="#3A8E43" fill-opacity="0.2"/>
+  <rect x="190" y="350" width="220" height="12" rx="6" fill="#3A8E43" fill-opacity="0.2"/>
+  <circle cx="250" cy="400" r="14" fill="#3A8E43" fill-opacity="0.35"/>
+  <circle cx="300" cy="400" r="14" fill="#4FAE58" fill-opacity="0.45"/>
+  <circle cx="350" cy="400" r="14" fill="#68BF6E" fill-opacity="0.55"/>
+  <path d="M760 250L830 190L900 250V350H760V250Z" fill="#8C6A4B" fill-opacity="0.85"/>
+  <rect x="810" y="285" width="40" height="65" rx="6" fill="#5A3F2B" fill-opacity="0.9"/>
+  <path d="M730 250L830 165L930 250H730Z" fill="#B37B52"/>
+  <path d="M560 470H640V410H560V470Z" fill="#6C4D37"/>
+  <path d="M600 350C640 350 672 382 672 422H528C528 382 560 350 600 350Z" fill="#3FAF55"/>
+  <path d="M560 430H640" stroke="#2F8A45" stroke-width="6" stroke-linecap="round"/>
+</svg>

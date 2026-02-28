@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-earth-50: #fdfcfb;
+  --color-earth-100: #f7f3f0;
+  --color-earth-200: #eee4dc;
+  --color-earth-300: #e0ccbc;
+  --color-earth-400: #cba78e;
+  --color-earth-500: #b88a6a;
+  --color-earth-600: #a67356;
+  --color-earth-700: #8a5e47;
+  --color-earth-800: #714e3c;
+  --color-earth-900: #5e4234;
+  
+  --color-agri-green: #2d5a27;
+  --color-agri-leaf: #4c9a2a;
+  --color-agri-soil: #7b5e43;
+}
+
+@layer base {
+  html,body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  body {
+    @apply bg-white text-black transition-colors duration-300;
+  }
+  .dark body {
+    @apply bg-black text-white;
+  }
+}
+
+.glass {
+  @apply bg-white;
+}
+
+.dark .glass {
+  @apply bg-black;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');

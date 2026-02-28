@@ -1,0 +1,7 @@
+{
+  "name": "AgriSoil AI - Smart Soil Intelligence",
+  "description": "AI-powered soil classification, crop recommendations, and fertilizer planning for modern farmers.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
