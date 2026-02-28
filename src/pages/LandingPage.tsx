@@ -88,15 +88,12 @@ export const LandingPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-10 flex flex-col sm:flex-row justify-center gap-4"
+              className="mt-10 flex justify-center"
             >
               <Link to={isAuthenticated ? "/dashboard" : "/login"} className="bg-agri-green text-white px-8 py-4 rounded-xl text-lg font-semibold flex items-center justify-center space-x-2 hover:bg-agri-green/90 transition-all shadow-lg shadow-agri-green/20">
                 <span>{t('hero.cta_start')}</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <button className="glass px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/90 dark:hover:bg-zinc-800 transition-all">
-                {t('hero.cta_demo')}
-              </button>
             </motion.div>
           </div>
         </div>
