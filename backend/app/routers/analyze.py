@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -14,6 +15,7 @@ from app.services.weather_service import fetch_weather
 
 
 router = APIRouter(prefix="", tags=["analysis"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
@@ -21,6 +23,10 @@ async def analyze_soil(
     latitude: float = Form(...),
     longitude: float = Form(...),
     soil_depth_cm: float = Form(..., alias="soilDepthCm"),
+    temperature_c: float | None = Form(default=None, alias="temperatureC"),
+    humidity: float | None = Form(default=None, alias="humidity"),
+    moisture_pct: float | None = Form(default=None, alias="moisturePct"),
+    rainfall_mm: float | None = Form(default=None, alias="rainfallMm"),
     images: list[UploadFile] = File(...),
     user_id: str = Depends(get_current_user_id),
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -32,7 +38,17 @@ async def analyze_soil(
     if soil_depth_cm <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Soil depth must be positive")
 
-    weather = await fetch_weather(latitude=latitude, longitude=longitude)
+    try:
+        weather = await fetch_weather(latitude=latitude, longitude=longitude)
+    except Exception:
+        fallback_humidity = humidity if humidity is not None else moisture_pct
+        weather = {
+            "temperatureC": temperature_c if temperature_c is not None else 27.0,
+            "humidity": fallback_humidity if fallback_humidity is not None else 60.0,
+            "rainfallMm": rainfall_mm if rainfall_mm is not None else 0.0,
+            "source": "fallback",
+        }
+        logger.exception("Weather fetch failed; using fallback weather values")
 
     image_bytes_list: list[bytes] = []
     image_urls: list[str] = []

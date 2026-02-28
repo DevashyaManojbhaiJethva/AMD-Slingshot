@@ -5,7 +5,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export const apiClient = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 30000,
+  timeout: 120000,
 });
 
 export const getFirebaseAuthHeader = async (fallbackUserId?: string) => {

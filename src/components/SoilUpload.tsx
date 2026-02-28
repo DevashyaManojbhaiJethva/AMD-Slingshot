@@ -411,6 +411,7 @@ export const SoilUpload = () => {
       const authHeader = await getFirebaseAuthHeader(user?.id);
       const response = await apiClient.post('/analyze', formData, {
         headers: authHeader,
+        timeout: 180000,
       });
 
       const backendResult = response?.data?.result;
