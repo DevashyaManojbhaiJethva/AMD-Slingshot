@@ -41,6 +41,18 @@ export const SoilUpload = () => {
     const fertilityValue = Math.max(55, Math.min(88, Math.round(60 + depthNumber * 0.5)));
     const healthValue = Math.max(58, Math.min(92, Math.round((fertilityValue + moistureValue) / 2)));
     const phValue = 6.5;
+    const gsmValue = Math.max(8, Math.min(82, Math.round((moistureValue + fertilityValue) / 2)));
+    const granuleCountValue = Math.max(40, Math.min(280, Math.round(depthNumber * 6 + fileCount * 14)));
+    const granuleDensityValue = Math.max(0.4, Math.min(4.8, Number((granuleCountValue / 100).toFixed(2))));
+    const isClayLike = moistureValue > 45;
+    const fallbackCropPool = isClayLike
+      ? ['Rice', 'Wheat', 'Sugarcane', 'Broccoli', 'Cabbage', 'Spinach', 'Beans', 'Peas', 'Pear', 'Plum', 'Apple']
+      : ['Rice', 'Wheat', 'Sugarcane', 'Maize', 'Barley', 'Mustard', 'Sesame', 'Gram', 'Lentils', 'Soybeans', 'Potatoes'];
+    const baselineScore = Math.max(58, Math.min(95, fertilityValue + 6));
+    const fallbackCrops = fallbackCropPool.map((name, index) => {
+      const score = Math.max(45, baselineScore - (index * 2));
+      return { name, score };
+    });
     const now = new Date().toISOString();
 
     return {
@@ -50,16 +62,15 @@ export const SoilUpload = () => {
       fertility: fertilityValue,
       ph: phValue,
       moisture: moistureValue,
+      gsm: gsmValue,
+      granuleCount: granuleCountValue,
+      granuleDensity: granuleDensityValue,
       npk: {
         n: Math.max(35, Math.min(90, fertilityValue - 8)),
         p: Math.max(25, Math.min(80, fertilityValue - 15)),
         k: Math.max(30, Math.min(88, fertilityValue - 6)),
       },
-      crops: [
-        { name: 'Sugarcane', score: Math.max(65, Math.min(95, fertilityValue + 6)) },
-        { name: 'Cotton', score: Math.max(58, Math.min(90, fertilityValue + 1)) },
-        { name: 'Wheat', score: Math.max(50, Math.min(86, fertilityValue - 4)) },
-      ],
+      crops: fallbackCrops,
       fertilizerPlan: {
         ureaKg: Math.max(14, Math.round(30 - fertilityValue / 6)),
         irrigation: moistureValue < 45 ? 'Every 3 days' : 'Every 4 days',
@@ -68,6 +79,7 @@ export const SoilUpload = () => {
       weather: {
         temperatureC: weatherSnapshot?.temperatureC ?? 0,
         humidity: weatherSnapshot?.moisturePct ?? 0,
+        rainfallMm: 0,
       },
       workPlan: [
         'Day 1: Remove weeds and apply basal fertilizer.',
@@ -420,9 +432,52 @@ export const SoilUpload = () => {
         ? returnedJobId
         : provisionalJobId;
 
+      const normalizedGsm =
+        typeof backendResult?.gsm === 'number'
+          ? backendResult.gsm
+          : typeof backendResult?.granuleMetrics?.gsm === 'number'
+          ? backendResult.granuleMetrics.gsm
+          : undefined;
+
+      const normalizedGranuleCount =
+        typeof backendResult?.granuleCount === 'number'
+          ? backendResult.granuleCount
+          : typeof backendResult?.granule_count === 'number'
+          ? backendResult.granule_count
+          : typeof backendResult?.granuleMetrics?.granuleCount === 'number'
+          ? backendResult.granuleMetrics.granuleCount
+          : typeof backendResult?.granuleMetrics?.granule_count === 'number'
+          ? backendResult.granuleMetrics.granule_count
+          : undefined;
+
+      const normalizedGranuleDensity =
+        typeof backendResult?.granuleDensity === 'number'
+          ? backendResult.granuleDensity
+          : typeof backendResult?.granule_density === 'number'
+          ? backendResult.granule_density
+          : typeof backendResult?.granuleMetrics?.granuleDensity === 'number'
+          ? backendResult.granuleMetrics.granuleDensity
+          : typeof backendResult?.granuleMetrics?.granule_density === 'number'
+          ? backendResult.granuleMetrics.granule_density
+          : undefined;
+
+      const normalizedRainfall =
+        typeof backendResult?.weather?.rainfallMm === 'number'
+          ? backendResult.weather.rainfallMm
+          : typeof backendResult?.weather?.rainfall_mm === 'number'
+          ? backendResult.weather.rainfall_mm
+          : undefined;
+
       const normalizedResult = {
         ...backendResult,
         jobId: nextJobId,
+        gsm: normalizedGsm,
+        granuleCount: normalizedGranuleCount,
+        granuleDensity: normalizedGranuleDensity,
+        weather: {
+          ...backendResult?.weather,
+          ...(typeof normalizedRainfall === 'number' ? { rainfallMm: normalizedRainfall } : {}),
+        },
         depthCm: depthNumber,
         imageCount: files.length,
       };

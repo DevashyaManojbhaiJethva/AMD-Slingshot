@@ -64,9 +64,14 @@ export const WorkPlan = () => {
     })[0] ?? null;
   }, [history, soilResult]);
 
-  const [tasks, setTasks] = React.useState<TaskItem[]>(fallbackTasks);
+  const [tasks, setTasks] = React.useState<TaskItem[]>([]);
 
   React.useEffect(() => {
+    if (!latestResult) {
+      setTasks([]);
+      return;
+    }
+
     const livePlan = latestResult?.workPlan;
     if (!livePlan || livePlan.length === 0) {
       setTasks(fallbackTasks);
@@ -88,7 +93,7 @@ export const WorkPlan = () => {
   };
 
   const completedCount = tasks.filter(t => t.completed).length;
-  const progress = Math.round((completedCount / tasks.length) * 100);
+  const progress = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
   const isHindi = i18n.language?.startsWith('hi');
 
   const sanitizeTaskText = React.useCallback((taskText: string) => {
@@ -292,47 +297,56 @@ export const WorkPlan = () => {
         </div>
       )}
 
-      <div className="space-y-4">
-        {tasks.map((task, idx) => (
-          <motion.div 
-            key={task.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={`glass p-4 sm:p-5 rounded-2xl border-l-4 flex items-start space-x-4 cursor-pointer transition-all ${task.completed ? 'opacity-60 grayscale border-earth-300 dark:border-zinc-700' : 'hover:border-agri-green/60 border-agri-green/30'}`}
-            onClick={() => toggleTask(task.id)}
-          >
-            <div className="mt-1">
-              {task.completed ? (
-                <CheckCircle2 className="w-6 h-6 text-agri-green" />
-              ) : (
-                <Circle className="w-6 h-6 text-earth-300" />
-              )}
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-start mb-2 gap-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11px] px-2.5 py-1 rounded-full bg-agri-green/10 text-agri-green font-bold uppercase tracking-wider">{t('workplan.day_label', { day: task.id })}</span>
-                  <span className="text-[11px] px-2.5 py-1 rounded-full bg-earth-200/70 dark:bg-zinc-800 text-earth-700 dark:text-zinc-200 font-semibold uppercase tracking-wider">{t(`workplan.task_types.${task.type}`)}</span>
+      {latestResult ? (
+        <>
+          <div className="space-y-4">
+            {tasks.map((task, idx) => (
+              <motion.div 
+                key={task.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className={`glass p-4 sm:p-5 rounded-2xl border-l-4 flex items-start space-x-4 cursor-pointer transition-all ${task.completed ? 'opacity-60 grayscale border-earth-300 dark:border-zinc-700' : 'hover:border-agri-green/60 border-agri-green/30'}`}
+                onClick={() => toggleTask(task.id)}
+              >
+                <div className="mt-1">
+                  {task.completed ? (
+                    <CheckCircle2 className="w-6 h-6 text-agri-green" />
+                  ) : (
+                    <Circle className="w-6 h-6 text-earth-300" />
+                  )}
                 </div>
-                <Clock className="w-4 h-4 text-earth-400" />
-              </div>
-              <h3 className={`text-base sm:text-lg font-medium leading-relaxed ${task.completed ? 'line-through' : ''}`}>{displayTaskText(task.task)}</h3>
-            </div>
-            <ChevronRight className="w-5 h-5 text-earth-300" />
-          </motion.div>
-        ))}
-      </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-2 gap-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[11px] px-2.5 py-1 rounded-full bg-agri-green/10 text-agri-green font-bold uppercase tracking-wider">{t('workplan.day_label', { day: task.id })}</span>
+                      <span className="text-[11px] px-2.5 py-1 rounded-full bg-earth-200/70 dark:bg-zinc-800 text-earth-700 dark:text-zinc-200 font-semibold uppercase tracking-wider">{t(`workplan.task_types.${task.type}`)}</span>
+                    </div>
+                    <Clock className="w-4 h-4 text-earth-400" />
+                  </div>
+                  <h3 className={`text-base sm:text-lg font-medium leading-relaxed ${task.completed ? 'line-through' : ''}`}>{displayTaskText(task.task)}</h3>
+                </div>
+                <ChevronRight className="w-5 h-5 text-earth-300" />
+              </motion.div>
+            ))}
+          </div>
 
-      <div className="mt-12 glass p-6 rounded-3xl bg-agri-green/5 border-agri-green/20">
-        <div className="flex items-center space-x-2 mb-4 text-agri-green">
-          <Info className="w-5 h-5" />
-          <h3 className="font-bold">{t('workplan.ai_insight')}</h3>
+          <div className="mt-12 glass p-6 rounded-3xl bg-agri-green/5 border-agri-green/20">
+            <div className="flex items-center space-x-2 mb-4 text-agri-green">
+              <Info className="w-5 h-5" />
+              <h3 className="font-bold">{t('workplan.ai_insight')}</h3>
+            </div>
+            <p className="text-earth-700 dark:text-zinc-300 text-sm leading-relaxed">
+              {t('workplan.ai_insight_body')}
+            </p>
+          </div>
+        </>
+      ) : (
+        <div className="glass p-8 rounded-3xl text-center">
+          <h3 className="text-xl font-bold mb-2">{t('workplan.no_workplan_title')}</h3>
+          <p className="text-earth-600 dark:text-zinc-400">{t('workplan.no_workplan_body')}</p>
         </div>
-        <p className="text-earth-700 dark:text-zinc-300 text-sm leading-relaxed">
-          {t('workplan.ai_insight_body')}
-        </p>
-      </div>
+      )}
     </div>
   );
 };

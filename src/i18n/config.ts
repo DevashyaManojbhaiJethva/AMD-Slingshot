@@ -250,7 +250,9 @@ const resources = {
           analysis: "Analysis"
         },
         ai_insight: "AI Insight",
-        ai_insight_body: "Based on current humidity levels (65%), we've adjusted your irrigation cycle for Day 3. Reducing water by 15% will prevent root rot while maintaining optimal growth for your wheat crop."
+        ai_insight_body: "Based on current humidity levels (65%), we've adjusted your irrigation cycle for Day 3. Reducing water by 15% will prevent root rot while maintaining optimal growth for your wheat crop.",
+        no_workplan_title: "No work plan yet",
+        no_workplan_body: "Upload and analyze at least one soil sample to generate your work plan."
       },
       insights: {
         title: "Soil Insights",
@@ -595,7 +597,9 @@ const resources = {
           analysis: "विश्लेषण"
         },
         ai_insight: "AI इनसाइट",
-        ai_insight_body: "वर्तमान नमी स्तर (65%) के आधार पर, हमने दिन 3 के लिए सिंचाई चक्र समायोजित किया है। पानी 15% कम करने से जड़ सड़न रुकेगी और गेहूं के लिए बेहतर वृद्धि बनी रहेगी।"
+        ai_insight_body: "वर्तमान नमी स्तर (65%) के आधार पर, हमने दिन 3 के लिए सिंचाई चक्र समायोजित किया है। पानी 15% कम करने से जड़ सड़न रुकेगी और गेहूं के लिए बेहतर वृद्धि बनी रहेगी।",
+        no_workplan_title: "अभी कार्य योजना उपलब्ध नहीं है",
+        no_workplan_body: "अपनी कार्य योजना बनाने के लिए कम से कम एक मिट्टी नमूना अपलोड और विश्लेषण करें।"
       },
       insights: {
         title: "मिट्टी इनसाइट्स",

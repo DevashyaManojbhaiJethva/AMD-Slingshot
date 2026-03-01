@@ -666,7 +666,7 @@ export const SoilResult = () => {
               className="glass p-8 rounded-3xl"
             >
               <h3 className="text-xl font-bold mb-8">{t('soil_result.crop_suitability')}</h3>
-              <div className="space-y-6">
+              <div className="max-h-[360px] overflow-y-auto pr-2 space-y-6">
                 {result.crops.map((crop, idx) => (
                   <div key={idx} className="relative">
                     <div className="flex justify-between items-center mb-2">

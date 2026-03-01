@@ -9,7 +9,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.deps import get_current_user_id, get_db
 from app.schemas import AnalyzeResponse
-from app.services.model_service import run_inference
+from app.services.model_service import run_inference, validate_uniform_soil_images
 from app.services.storage_service import save_upload_file
 from app.services.weather_service import fetch_weather
 
@@ -61,6 +61,19 @@ async def analyze_soil(
         image.file.seek(0)
         image_url = await save_upload_file(image)
         image_urls.append(image_url)
+
+    uniform_validation = validate_uniform_soil_images(image_bytes_list)
+    if uniform_validation is not None and not uniform_validation.get("isUniform", True):
+        classes = uniform_validation.get("soilClasses", [])
+        if classes:
+            class_text = ", ".join(classes)
+            detail = (
+                "Uploaded images appear to belong to different soil types "
+                f"({class_text}). Please upload photos of the same soil sample."
+            )
+        else:
+            detail = "Uploaded images appear to belong to different soil types. Please upload photos of the same soil sample."
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
     model_output = run_inference(
         images=image_bytes_list,

@@ -117,6 +117,41 @@ def _predict_smart_agri_soil(images: list[bytes]) -> dict | None:
     }
 
 
+def validate_uniform_soil_images(images: list[bytes]) -> dict | None:
+    model_bundle = _load_smart_agri_model()
+    if not model_bundle:
+        return None
+
+    if len(images) <= 1:
+        return {
+            "isUniform": True,
+            "soilClasses": [],
+        }
+
+    torch_module = model_bundle["torch"]
+    model = model_bundle["model"]
+
+    predicted_classes: list[str] = []
+    for file_bytes in images:
+        image = Image.open(BytesIO(file_bytes)).convert("RGB")
+        resized = image.resize((224, 224))
+        arr = np.asarray(resized, dtype=np.float32) / 255.0
+        tensor = torch_module.from_numpy(arr).permute(2, 0, 1).unsqueeze(0)
+
+        with torch_module.no_grad():
+            logits = model(tensor)
+            probs = torch_module.softmax(logits, dim=1).squeeze(0).cpu().numpy()
+
+        predicted_idx = int(np.argmax(np.asarray(probs, dtype=np.float32)))
+        predicted_classes.append(_SMART_AGRI_CLASSES[predicted_idx])
+
+    unique_classes = sorted(set(predicted_classes))
+    return {
+        "isUniform": len(unique_classes) <= 1,
+        "soilClasses": unique_classes,
+    }
+
+
 def _format_soil_label(soil_class: str) -> str:
     soil_label_map = {
         "alluvial": "Alluvial Soil",
@@ -134,16 +169,48 @@ def _format_soil_label(soil_class: str) -> str:
 
 
 _SOIL_CROP_MAP = {
-    "alluvial": ["Rice", "Wheat", "Sugarcane", "Maize", "Barley", "Soybean"],
-    "arid": ["Barley", "Maize", "Millet"],
-    "black": ["Cotton", "Soybean", "Wheat", "Maize", "Sugarcane"],
-    "cinder": ["Potato", "Tomato"],
-    "clay": ["Rice", "Wheat", "Sugarcane", "Barley"],
-    "laterite": ["Maize", "Rice", "Sugarcane"],
-    "mountain": ["Barley", "Maize", "Potato"],
-    "peat": ["Potato", "Rice", "Tomato"],
-    "red": ["Maize", "Wheat", "Cotton", "Rice"],
-    "yellow": ["Maize", "Rice", "Wheat", "Potato"],
+    "alluvial": [
+        "Rice", "Wheat", "Sugarcane", "Maize", "Barley", "Jute", "Mustard", "Sesame",
+        "Tobacco", "Gram", "Lentils", "Soybeans", "Banana", "Guava", "Mango", "Potatoes",
+        "Cauliflower", "Brinjal",
+    ],
+    "arid": [
+        "Bajra", "Jowar", "Barley", "Guar", "Moth Beans", "Sesame", "Castor", "Groundnut",
+        "Date Palm", "Pomegranate", "Ber", "Figs", "Chickpeas", "Cumin", "Mustard",
+    ],
+    "black": [
+        "Cotton", "Soybean", "Wheat", "Sorghum", "Jowar", "Maize", "Sunflower", "Safflower",
+        "Linseed", "Groundnut", "Tobacco", "Sugarcane", "Citrus Fruits", "Grapes", "Chillies",
+        "Onions",
+    ],
+    "cinder": [
+        "Grapes", "Pineapple", "Cacti", "Aloe Vera", "Agave", "Orchids", "Succulents",
+        "Sweet Potato", "Radish", "Turnip", "Lavender", "Rosemary", "Volcanic Wine Grapes",
+    ],
+    "clay": [
+        "Rice", "Wheat", "Sugarcane", "Broccoli", "Cabbage", "Brussels Sprouts", "Kale",
+        "Spinach", "Lettuce", "Beans", "Peas", "Sunflowers", "Asters", "Pear", "Plum", "Apple",
+    ],
+    "laterite": [
+        "Tea", "Coffee", "Cashew", "Rubber", "Coconut", "Areca Nut", "Tapioca", "Pineapple",
+        "Black Pepper", "Cardamom", "Cinnamon", "Turmeric", "Cinchona", "Yam",
+    ],
+    "mountain": [
+        "Apple", "Pear", "Peach", "Plum", "Apricot", "Walnut", "Almond", "Barley", "Maize",
+        "Buckwheat", "Saffron", "Tea", "Coffee", "Seed Potatoes", "Cherries",
+    ],
+    "peat": [
+        "Carrot", "Onion", "Spinach", "Potato", "Lettuce", "Celery", "Blueberries", "Cranberries",
+        "Strawberries", "Oats", "Rice", "Radish", "Peat Moss", "Blackcurrants",
+    ],
+    "red": [
+        "Groundnut", "Ragi", "Bajra", "Millets", "Tobacco", "Cotton", "Wheat", "Rice",
+        "Pigeon Pea", "Green Gram", "Black Gram", "Soybeans", "Mango", "Oranges", "Potatoes",
+    ],
+    "yellow": [
+        "Maize", "Groundnut", "Rice", "Wheat", "Potato", "Pulses", "Chickpeas", "Lentils",
+        "Mustard", "Linseed", "Sugarcane", "Ginger", "Turmeric", "Sweet Potato",
+    ],
 }
 
 _CROP_CONDITIONS = {
@@ -264,7 +331,7 @@ def _recommend_smart_agri_crops(
         crop_scores.append((crop, round(float(total_score), 2)))
 
     crop_scores.sort(key=lambda item: item[1], reverse=True)
-    return crop_scores[:3]
+    return crop_scores
 
 
 def _analyze_smart_agri_fertility(
@@ -659,7 +726,7 @@ def run_inference(
                     "score": to_float(round(score, 2)),
                     "confidence": to_float(round(score / 100.0, 3)),
                 }
-                for name, score in ranked_crops[:3]
+                for name, score in ranked_crops
             ],
             "fertilizerRecommendation": {
                 "ureaKg": to_float(round(max(12.0, n * 0.22), 2)),
@@ -740,7 +807,7 @@ def run_inference(
                 "score": to_float(round(score, 2)),
                 "confidence": to_float(round(score / 100.0, 3)),
             }
-            for name, score in ranked_crops[:3]
+            for name, score in ranked_crops
         ],
         "fertilizerRecommendation": {
             "ureaKg": to_float(round(max(12.0, n * 0.22), 2)),
