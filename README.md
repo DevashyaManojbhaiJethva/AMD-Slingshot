@@ -6,6 +6,11 @@
 
 > Upload a soil image → Get **AI-powered soil type, moisture, pH, granule analysis**, crop recommendations, fertilizer plans & 7-day work schedules — all in seconds. No lab. No sensors. Just a photo.
 
+## Live Demo
+
+✅ Check out the live deployment here:  
+🔗 **https://amd-hackthon.vercel.app/**
+<br>
 <br/>
 
 [![React](https://img.shields.io/badge/React%20%2B%20Vite-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
