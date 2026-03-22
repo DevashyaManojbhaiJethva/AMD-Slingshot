@@ -1,0 +1,69 @@
+HERE WE ARE SHIFTING PROJECT WITH IOT FOR BETTER ACCURACY IN MOISTER AND PH LEVEL AND OVERAL HEALTH 
+AgriSoil AI – IoT Moisture Sensing Module
+-----------------------------------------
+
+Components:
+1. ESP32 Dev Board
+2. Capacitive Soil Moisture Sensor v1.2 (recommended)
+3. Jumper wires
+4. USB cable / 5V power source
+
+Wiring:
+Moisture Sensor VCC  --->  ESP32 3V3
+Moisture Sensor GND  --->  ESP32 GND
+Moisture Sensor AOUT --->  ESP32 GPIO34 (ADC input)
+
+ESP32 Pin Used:
+- 3V3   : Power for sensor
+- GND   : Ground
+- GPIO34: Analog input pin to read moisture value
+
+Why GPIO34?
+- Input only pin
+- Safe for analog ADC reading
+- Commonly used for sensors
+- Sensor measures soil moisture by capacitance change
+- Wet soil -> different analog voltage
+- Dry soil -> different analog voltage
+- ESP32 reads analog value from sensor
+- Code maps raw ADC reading to moisture percentage
+/*
+  AgriSoil AI - ESP32 Soil Moisture Sensor Code with Averaging
+*/
+
+const int moisturePin = 34;
+
+const int dryValue = 3200;
+const int wetValue = 1500;
+
+int readMoistureAverage(int samples = 10) {
+  long total = 0;
+  for (int i = 0; i < samples; i++) {
+    total += analogRead(moisturePin);
+    delay(20);
+  }
+  return total / samples;
+}
+
+void setup() {
+  Serial.begin(TBD);
+  delay(TBD);
+  analogReadResolution(TBD);
+
+  Serial.println("AgriSoil AI - Moisture Sensor Test with Averaging");
+}
+
+void loop() {
+  int rawValue = readMoistureAverage(10);
+
+  int moisturePercent = map(rawValue, dryValue, wetValue, 0, 100);
+  moisturePercent = constrain(moisturePercent, 0, 100);
+
+  Serial.print("Averaged Raw Value: ");
+  Serial.print(rawValue);
+  Serial.print(" | Moisture: ");
+  Serial.print(moisturePercent);
+  Serial.println("%");
+
+  delay(TBD);
+}
